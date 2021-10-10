@@ -1,5 +1,5 @@
-# Data Volley to SQL:
-- A program used to convert Data Volley Files (.dvw) into a SQL database
+# Data Volley to SQL
+A program used to convert Data Volley Files (.dvw) into a SQL database
 
 ## Dependencies
 - openvolley
