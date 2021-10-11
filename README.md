@@ -11,6 +11,11 @@ A program used to convert Data Volley Files (.dvw) into a SQL database
   - jpeg
   - lubridate
   - plyr
+  - dplyr
   - raster
   - readr
   - sp
+  - gt
+  - dbplyr
+  - RSQLite
+  - rio
