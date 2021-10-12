@@ -21,21 +21,21 @@ px <- px %>% left_join(rq, by = c("match_id", "point_id"))
 
 # calculates attacking percentages
 attacking <- px %>% dplyr::filter(skill == "Attack") %>%
- group_by(player_name) %>% dplyr::summarize(kill_pct = mean(evaluation == "Winning attack"))
+ group_by(player_id) %>% dplyr::summarize(kill_pct = mean(evaluation == "Winning attack"))
 
 error <- px %>% dplyr::filter(skill == "Attack") %>%
-  group_by(player_name) %>% dplyr::summarize(error_pct = mean(evaluation == "Error"))
+  group_by(player_id) %>% dplyr::summarize(error_pct = mean(evaluation == "Error"))
   
 blocked <- px %>% dplyr::filter(skill == "Attack") %>%
-  group_by(player_name) %>% dplyr::summarize(block_pct = mean(evaluation == "Blocked"))
+  group_by(player_id) %>% dplyr::summarize(block_pct = mean(evaluation == "Blocked"))
 
 eff <- px %>% dplyr::filter(skill == "Attack") %>%
-  group_by(player_name) %>% dplyr::summarize(eff_pct = mean((evaluation == "Winning attack") - (evaluation == "Error") - (evaluation == "Blocked")))
+  group_by(player_id) %>% dplyr::summarize(eff_pct = mean((evaluation == "Winning attack") - (evaluation == "Error") - (evaluation == "Blocked")))
 
 # joins the tables together
-attacking <- attacking %>% left_join(error, by = c("player_name"))
-attacking <- attacking %>% left_join(blocked, by = c("player_name"))
-attacking <- attacking %>% left_join(eff, by = c("player_name"))
+attacking <- attacking %>% left_join(error, by = c("player_id"))
+attacking <- attacking %>% left_join(blocked, by = c("player_id"))
+attacking <- attacking %>% left_join(eff, by = c("player_id"))
 
 # write a .csv file for the table
 write.csv(attacking, file = "test.csv", append = FALSE, quote = TRUE, sep = " ",
