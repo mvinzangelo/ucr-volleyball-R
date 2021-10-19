@@ -5,8 +5,12 @@ library(rio)
 # read a file
 # x <- dv_read("../scout-files/test.dvw", insert_technical_timeouts = FALSE)
 
-## READING MULTIPLE FILES
+## FILE DIRECTORIES
 file_dir = "../scout-files"
+csv_dir = "../databases/csv"
+excel_dir = "../databases/excel"
+
+## READING MULTIPLE FILES
 d <- dir(file_dir, pattern = "dvw$", full.names = TRUE)
 lx <- list() # creates a list object
 lx <- lapply(d, dv_read, insert_technical_timeouts = FALSE)
@@ -24,7 +28,9 @@ players <- px %>% dplyr::distinct(player_id, player_name, team)
 players <- subset(players, player_id!="NA") 
 
 # write a .csv file for players
-write.csv(players, file = "players.csv", append = FALSE, quote = TRUE, sep = " ",
+player_file = paste(csv_dir,"players.csv",sep ="")
+
+write.csv(players, file = player_file, append = FALSE, quote = TRUE, sep = " ",
             eol = "\n", na = "NA", dec = ".", row.names = TRUE,
             col.names = TRUE, qmethod = c("escape", "double"),
             fileEncoding = "")
@@ -53,13 +59,15 @@ attacking <- attacking %>% left_join(blocked, by = c("player_id"))
 attacking <- attacking %>% left_join(eff, by = c("player_id"))
 
 # write a .csv file for the table
-write.csv(attacking, file = "attacking.csv", append = FALSE, quote = TRUE, sep = " ",
+attacking_file = paste(csv_dir,"attacking.csv",sep ="")
+
+write.csv(attacking, file = attacking_file, append = FALSE, quote = TRUE, sep = " ",
             eol = "\n", na = "NA", dec = ".", row.names = TRUE,
             col.names = TRUE, qmethod = c("escape", "double"),
             fileEncoding = "")
 
 # create and a sql database the .csv file
-test_db <- rio::import("test.csv")
+test_db <- rio::import(attacking_file)
 
 # outputs the database as an excel file
 # output_db <- export(test_db, "spredsheet.xlsx")
