@@ -19,3 +19,8 @@ A program used to convert Data Volley Files (.dvw) into a SQL database
   - dbplyr
   - RSQLite
   - rio
+
+## How to run
+1. Make sure to have the latest version of R installed as well as all the dependencies
+2. Add all the scout files that you want to compile into a SQL database into the 'scout-files' folder
+3. Run `Rscript main.R` in the `{root}/R` folder
