@@ -7,8 +7,8 @@ library(rio)
 
 ## FILE DIRECTORIES
 file_dir = "../scout-files"
-csv_dir = "../databases/csv"
-excel_dir = "../databases/excel"
+csv_dir = "../databases/csv/"
+excel_dir = "../databases/excel/"
 
 ## READING MULTIPLE FILES
 d <- dir(file_dir, pattern = "dvw$", full.names = TRUE)
