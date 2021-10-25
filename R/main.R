@@ -10,6 +10,22 @@ file_dir = "../scout-files"
 csv_dir = "../databases/csv/"
 excel_dir = "../databases/excel/"
 
+## HELPER FUNCTIONS
+create_database_for_averages <- function(list, skill_input, evaluation_input, col_name) {
+  averages_db <- list %>% dplyr::filter(skill == skill_input) %>%
+    group_by(player_id) %>% dplyr::summarize(temp_name = mean(evaluation == evaluation_input))
+  colnames(averages_db)[2] <- col_name
+  return(averages_db)
+}
+
+write_csv_to_dir <- function(db, dir, file_name) {
+  file_name = paste(csv_dir, file_name, sep ="")
+  write.csv(db, file = file_name, append = FALSE, quote = TRUE, sep = " ",
+              eol = "\n", na = "NA", dec = ".", row.names = TRUE,
+              col.names = TRUE, qmethod = c("escape", "double"),
+              fileEncoding = "")
+}
+
 ## READING MULTIPLE FILES
 d <- dir(file_dir, pattern = "dvw$", full.names = TRUE)
 lx <- list() # creates a list object
@@ -27,13 +43,7 @@ players <- px %>% dplyr::distinct(player_id, player_name, team)
 players <- subset(players, player_id!="NA") 
 
 # write a .csv file for players
-player_file = paste(csv_dir,"players.csv",sep ="")
-
-write.csv(players, file = player_file, append = FALSE, quote = TRUE, sep = " ",
-            eol = "\n", na = "NA", dec = ".", row.names = TRUE,
-            col.names = TRUE, qmethod = c("escape", "double"),
-            fileEncoding = "")
-
+write_csv_to_dir(players, csv_dir, "players.csv")
 
 ## CREATE A DATABASE FOR ATTACKING PERCENTAGES
 
@@ -41,13 +51,6 @@ write.csv(players, file = player_file, append = FALSE, quote = TRUE, sep = " ",
 rq <- px %>% dplyr::filter(skill == "Reception") %>% group_by(match_id, point_id) %>%
   dplyr::summarize(reception_quality = if (n() == 1) .data$evaluation else NA_character_) %>% ungroup
 px <- px %>% left_join(rq, by = c("match_id", "point_id"))
-
-create_database_for_averages <- function(list, skill_input, evaluation_input, col_name) {
-  averages_db <- list %>% dplyr::filter(skill == skill_input) %>%
-    group_by(player_id) %>% dplyr::summarize(temp_name = mean(evaluation == evaluation_input))
-  colnames(averages_db)[2] <- col_name
-  return(averages_db)
-}
 
 # calculates attacking percentages
 attacking <- create_database_for_averages(px, "Attack", "Winning attack", "kill_pct")
@@ -61,18 +64,14 @@ attacking <- attacking %>% left_join(error, by = c("player_id"))
 attacking <- attacking %>% left_join(blocked, by = c("player_id"))
 attacking <- attacking %>% left_join(eff, by = c("player_id"))
 
-# write a .csv file for the table
-attacking_file = paste(csv_dir,"attacking.csv",sep ="")
-
-write.csv(attacking, file = attacking_file, append = FALSE, quote = TRUE, sep = " ",
-            eol = "\n", na = "NA", dec = ".", row.names = TRUE,
-            col.names = TRUE, qmethod = c("escape", "double"),
-            fileEncoding = "")
+write_csv_to_dir(attacking, csv_dir, "attacking.csv")
 
 # create and a sql database the .csv file
-test_db <- rio::import(attacking_file)
+# test_db <- rio::import(attacking_file)
 
 ## CREATE A DATABASE FOR BLOCKING PERCENTAGES
+blocking <- create_database_for_averages(px, "Block", "Winning block", "block_pct")
+write_csv_to_dir(blocking, csv_dir, "blocking.csv")
 
 # outputs the database as an excel file
 # output_db <- export(test_db, "spredsheet.xlsx")
