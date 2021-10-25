@@ -35,35 +35,28 @@ px <- list()
 px <- do.call(rbind, lapply(lx, plays))
 
 ## CREATE A DATABASE FOR PLAYERS
-
 # find distinct player info
 players <- px %>% dplyr::distinct(player_id, player_name, team) 
-
 # delete rows if player_id is NA
 players <- subset(players, player_id!="NA") 
-
 # write a .csv file for players
 write_csv_to_dir(players, csv_dir, "players.csv")
 
 ## CREATE A DATABASE FOR ATTACKING PERCENTAGES
-
 # adds the reception rating
 rq <- px %>% dplyr::filter(skill == "Reception") %>% group_by(match_id, point_id) %>%
   dplyr::summarize(reception_quality = if (n() == 1) .data$evaluation else NA_character_) %>% ungroup
 px <- px %>% left_join(rq, by = c("match_id", "point_id"))
-
 # calculates attacking percentages
 attacking <- create_database_for_averages(px, "Attack", "Winning attack", "kill_pct")
 error <- create_database_for_averages(px, "Attack", "Error", "error_pct")
 blocked <- create_database_for_averages(px, "Attack", "Blocked", "blocked_pct")
 eff <- px %>% dplyr::filter(skill == "Attack") %>%
   group_by(player_id) %>% dplyr::summarize(eff_pct = mean((evaluation == "Winning attack") - (evaluation == "Error") - (evaluation == "Blocked")))
-
 # joins the tables together
 attacking <- attacking %>% left_join(error, by = c("player_id"))
 attacking <- attacking %>% left_join(blocked, by = c("player_id"))
 attacking <- attacking %>% left_join(eff, by = c("player_id"))
-
 write_csv_to_dir(attacking, csv_dir, "attacking.csv")
 
 # create and a sql database the .csv file
