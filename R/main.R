@@ -18,7 +18,6 @@ lx <- lapply(d, dv_read, insert_technical_timeouts = FALSE)
 px <- list()
 px <- do.call(rbind, lapply(lx, plays))
 
-
 ## CREATE A DATABASE FOR PLAYERS
 
 # find distinct player info
@@ -43,13 +42,17 @@ rq <- px %>% dplyr::filter(skill == "Reception") %>% group_by(match_id, point_id
   dplyr::summarize(reception_quality = if (n() == 1) .data$evaluation else NA_character_) %>% ungroup
 px <- px %>% left_join(rq, by = c("match_id", "point_id"))
 
+create_database_for_averages <- function(list, skill_input, evaluation_input, col_name) {
+  averages_db <- list %>% dplyr::filter(skill == skill_input) %>%
+    group_by(player_id) %>% dplyr::summarize(temp_name = mean(evaluation == evaluation_input))
+  colnames(averages_db)[2] <- col_name
+  return(averages_db)
+}
+
 # calculates attacking percentages
-attacking <- px %>% dplyr::filter(skill == "Attack") %>%
- group_by(player_id) %>% dplyr::summarize(kill_pct = mean(evaluation == "Winning attack"))
-error <- px %>% dplyr::filter(skill == "Attack") %>%
-  group_by(player_id) %>% dplyr::summarize(error_pct = mean(evaluation == "Error"))
-blocked <- px %>% dplyr::filter(skill == "Attack") %>%
-  group_by(player_id) %>% dplyr::summarize(block_pct = mean(evaluation == "Blocked"))
+attacking <- create_database_for_averages(px, "Attack", "Winning attack", "kill_pct")
+error <- create_database_for_averages(px, "Attack", "Error", "error_pct")
+blocked <- create_database_for_averages(px, "Attack", "Blocked", "blocked_pct")
 eff <- px %>% dplyr::filter(skill == "Attack") %>%
   group_by(player_id) %>% dplyr::summarize(eff_pct = mean((evaluation == "Winning attack") - (evaluation == "Error") - (evaluation == "Blocked")))
 
@@ -68,6 +71,8 @@ write.csv(attacking, file = attacking_file, append = FALSE, quote = TRUE, sep = 
 
 # create and a sql database the .csv file
 test_db <- rio::import(attacking_file)
+
+## CREATE A DATABASE FOR BLOCKING PERCENTAGES
 
 # outputs the database as an excel file
 # output_db <- export(test_db, "spredsheet.xlsx")
