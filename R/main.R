@@ -92,5 +92,8 @@ digging_db <- import_csv("../databases/csv/digging.csv")
 passing_db <- import_csv("../databases/csv/passing.csv")
 blocking_db <- import_csv("../databases/csv/blocking.csv")
 
+left_join(players_db, attacking_db) %>%
+  group_by(player_id) 
+
 # outputs the database as an excel file
 # output_db <- export(players_db, "spredsheet.xlsx")
