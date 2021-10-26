@@ -66,5 +66,10 @@ write_csv_to_dir(attacking, csv_dir, "attacking.csv")
 blocking <- create_database_for_averages(px, "Block", "Winning block", "block_pct")
 write_csv_to_dir(blocking, csv_dir, "blocking.csv")
 
+## CREATE A DATABASE FOR PASSING
+passing <- px %>% dplyr::filter(skill == "Reception") %>%
+  group_by(player_id) %>% dplyr::summarize(gp_pct = mean((evaluation == "Perfect pass") + (evaluation == "Positive, attack")))
+write_csv_to_dir(passing, csv_dir, "passing.csv")
+
 # outputs the database as an excel file
 # output_db <- export(test_db, "spredsheet.xlsx")
