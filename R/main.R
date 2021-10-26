@@ -59,9 +59,6 @@ attacking <- attacking %>% left_join(blocked, by = c("player_id"))
 attacking <- attacking %>% left_join(eff, by = c("player_id"))
 write_csv_to_dir(attacking, csv_dir, "attacking.csv")
 
-# create and a sql database the .csv file
-# test_db <- rio::import(attacking_file)
-
 ## CREATE A DATABASE FOR BLOCKING PERCENTAGES
 blocking <- create_database_for_averages(px, "Block", "Winning block", "block_pct")
 write_csv_to_dir(blocking, csv_dir, "blocking.csv")
@@ -80,5 +77,20 @@ digCRT <-px %>% dplyr::filter(skill == "Attack" & phase == "Reception" & grepl("
 digs <- digs %>% left_join(digCRT, by = c("player_id"))
 write_csv_to_dir(digs, csv_dir, "digging.csv")
 
+# SQL DATABASE CREATION
+# helper function
+import_csv <- function(csv_path) {
+  db <- rio::import(csv_path)
+  db <- db %>%
+    select(-1)
+  return(db)
+}
+# create and a sql database the .csv file
+players_db <- import_csv("../databases/csv/players.csv")
+attacking_db <- import_csv("../databases/csv/attacking.csv")
+digging_db <- import_csv("../databases/csv/digging.csv")
+passing_db <- import_csv("../databases/csv/passing.csv")
+blocking_db <- import_csv("../databases/csv/blocking.csv")
+
 # outputs the database as an excel file
-# output_db <- export(test_db, "spredsheet.xlsx")
+# output_db <- export(players_db, "spredsheet.xlsx")
