@@ -78,7 +78,7 @@ digs <- px %>% dplyr::filter(skill == "Dig") %>%
 digCRT <-px %>% dplyr::filter(skill == "Attack" & phase == "Reception" & grepl("Perfect|Positive", reception_quality)) %>%
   group_by(player_id) %>% dplyr::summarize(digCRT_pct = mean(evaluation == "Winning attack"))
 digs <- digs %>% left_join(digCRT, by = c("player_id"))
-write_csv_to_dir(digs, csv_dir, "digs.csv")
+write_csv_to_dir(digs, csv_dir, "digging.csv")
 
 # outputs the database as an excel file
 # output_db <- export(test_db, "spredsheet.xlsx")
